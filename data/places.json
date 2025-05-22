@@ -1,0 +1,37 @@
+[
+    {
+        "lat": 24.1254,
+        "lng": -110.3149,
+        "name": "Centro de Justicia de la Mujer",
+        "bg": "casita.png",
+        "link": "mesa-violeta.html"
+    },
+    {
+        "lat": 24.12522,
+        "lng": -110.31275,
+        "name": "Soriana Hiper Forjadores",
+        "bg": "soriana.png",
+        "link": "index.html"
+    },
+    {
+        "lat": 24.12678,
+        "lng": -110.31431,
+        "name": "City Club Forjadores",
+        "bg": "cityclub.png",
+        "link": "index.html"
+    },
+    {
+        "lat": 24.12392,
+        "lng": -110.31511,
+        "name": "Ayuntamiento",
+        "bg": "ayuntamiento.png",
+        "link": "index.html"
+    },
+    {
+        "lat": 24.13338,
+        "lng": -110.31831,
+        "name": "Policía Municipal",
+        "bg": "escudoMun.png",
+        "link": "index.html"
+    }
+]
