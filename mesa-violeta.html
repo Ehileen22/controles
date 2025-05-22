@@ -1,62 +1,35 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mesa Violeta</title>
+<html>
 
-    <link href="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.css" rel="stylesheet">
-    <script src="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js"></script>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Interacción con controles Meta Quest</title>
     <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@5.0.0/dist/aframe-physics-system.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/super-hands"></script>
 </head>
+
 <body>
-    <a-scene webxr="optionalFeatures: hand-tracking" physics="gravity: -9.8" device-orientation-permission-ui="enabled: false">
-        
-        <a-sky id="sky" src="#point1" rotation="0 -80 0"></a-sky> 
-        <a-assets>
-            <!-- Tus assets aquí -->
-        </a-assets>
+    <a-scene webxr="optionalFeatures: hand-tracking" physics="gravity: -9.8">
+        <!-- Cámara -->
+        <a-camera position="0 1.6 0"></a-camera>
 
-        <a-entity id="spots" hotspots scale="1 1 1">
-            <!--Estacionamiento-->
-            <a-entity id="group-point1">
-                <!-- Cubo interactivo -->
-                <a-box id="cubo" position="0 1 -2" color="red" scale="0.3 0.3 0.3" class="interactivo"
-                    geometry="primitive: box" dynamic-body grabbable hoverable draggable>
-                </a-box>
-                
-                <!-- Resto de tus elementos en group-point1 -->
-            </a-entity>
+        <!-- Controladores de Meta Quest -->
+        <a-entity meta-touch-controls="hand: left" super-hands="maxGrabDistance: 2"
+            collision-filter="group: hand; collidesWith: interactivo"></a-entity>
+        <a-entity meta-touch-controls="hand: right" super-hands="maxGrabDistance: 2"
+            collision-filter="group: hand; collidesWith: interactivo"></a-entity>
 
-            <!-- Resto de tus grupos de puntos -->
-        </a-entity>
+        <!-- Cubo interactivo -->
+        <a-box id="cubo" position="0 1.5 -0.5" color="red" scale="0.5 0.5 0.5" class="interactivo"
+            geometry="primitive: box" dynamic-body grabbable hoverable draggable>
+        </a-box>
 
-        <a-entity id="cam" camera position="0 1.6 0" look-controls>
-            <!-- Controladores de Meta Quest dentro de la cámara -->
-            <a-entity hand-controls="left" super-hands="colliderEvent: raycaster-intersection; colliderEventProperty: els; colliderEndEvent: raycaster-intersection-cleared; colliderEndEventProperty: els;"></a-entity>
-            <a-entity hand-controls="right" super-hands="colliderEvent: raycaster-intersection; colliderEventProperty: els; colliderEndEvent: raycaster-intersection-cleared; colliderEndEventProperty: els;"></a-entity>
-            
-            <!-- Cursor para modo no inmersivo -->
-            <a-entity 
-                cursor="fuse: true; fuseTimeout: 500"
-                raycaster="objects: .interactivo; far: 20; interval: 1000"
-                position="0 0 -1"
-                geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.02"
-                material="color: #FF0000; shader: flat">
-            </a-entity>
-            
-            <!-- Logos -->
-            <a-entity position="-2 0.30 -1.5">
-                <a-image class="logo" src="./images/LaPaz-logo1.png" position="0.75 0.30 -1.5" width="0.35" height="0.35"></a-image>
-            </a-entity>
-            <a-entity position="0.3 0.30 -1.5">
-                <a-image class="logo" src="./images/uabcs-logo.png" position="0.75 0.30 -1.5" width="0.30" height="0.30"></a-image>
-            </a-entity>
-        </a-entity>
+        <!-- Suelo -->
+        <a-plane rotation="-90 0 0" width="10" height="10" color="#ccc" static-body></a-plane>
     </a-scene>
-    
+
     <script>
         AFRAME.registerComponent('cubito', {
             init: function () {
@@ -65,25 +38,43 @@
                 // Detectar cuando el cubo es tocado
                 cubo.addEventListener('grab-start', () => {
                     console.log('cubo tocado');
-                    cubo.setAttribute('color', 'green');
+                    cubo.setAttribute('color', 'green');  // Cambiar el color a verde
                 });
 
                 // Detectar cuando el cubo deja de ser tocado
                 cubo.addEventListener('grab-end', () => {
                     console.log('cubo dejado');
-                    cubo.setAttribute('color', 'red');
-                });
-                
-                // Detectar clic en modo no inmersivo
-                cubo.addEventListener('click', () => {
-                    console.log('cubo clickeado');
-                    cubo.setAttribute('color', 'blue');
-                    setTimeout(() => cubo.setAttribute('color', 'red'), 500);
+                    cubo.setAttribute('color', 'red');  // Volver a color rojo
                 });
             }
         });
     </script>
-    
-    <script src="js/hotspot.js"></script>
 </body>
+
 </html>
+
+<!--script>
+        AFRAME.registerComponent('cubito', {
+            init: function () {
+                const cubo = document.querySelector('#cubo');
+
+                cubo.addEventListener('raycaster-intersected', () => {
+                    console.log('mouseenter');
+                    cubo.setAttribute('color', 'green');
+                });
+
+                cubo.addEventListener('raycaster-intersected-cleared', () => {
+                    console.log('mouseleave');
+                    cubo.setAttribute('color', 'red');
+                });
+
+                cubo.addEventListener('grab-start', () => {
+                    cubo.setAttribute('color', 'blue');
+                });
+
+                cubo.addEventListener('grab-end', () => {
+                    cubo.setAttribute('color', 'red');
+                });
+            }
+        });
+    </script-->
