@@ -2,91 +2,125 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Interacción con controles Meta Quest</title>
-    <!-- Asegúrate de cargar las bibliotecas correctamente -->
-    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@5.0.0/dist/aframe-physics-system.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <title>VR Cubo Interactivo - Meta Quest</title>
+    <!-- A-Frame 1.5.0 (versión estable para WebXR) -->
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <!-- Super-Hands + extras para interacción -->
     <script src="https://cdn.jsdelivr.net/npm/super-hands@5.0.0/dist/super-hands.min.js"></script>
+    <!-- Physics para soltar el cubo con gravedad -->
+    <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
+    <!-- Hand tracking para Quest -->
+    <script src="https://cdn.jsdelivr.net/npm/aframe-hand-controls@1.3.0/dist/aframe-hand-controls.min.js"></script>
 </head>
 
 <body>
+    <!-- Escena con WebXR y soporte para Quest -->
     <a-scene 
-        webxr="optionalFeatures: hand-tracking" 
-        physics="gravity: -9.8"
-        cursor="rayOrigin: mouse"
-        raycaster="objects: .interactivo">
-        
-        <!-- Cámara con raycaster para pruebas en escritorio -->
-        <a-camera position="0 1.6 0">
+        vr-mode-ui="enabled: true"
+        xr-mode-ui="enabled: true"
+        webxr="
+            optionalFeatures: hand-tracking, controllers;
+            requiredFeatures: local-floor, hit-test;
+            referenceSpaceType: local-floor"
+        physics="debug: false; gravity: -9.8;"
+        renderer="colorManagement: true;"
+        cursor="rayOrigin: mouse">
+
+        <!-- Cámara principal con cursor para modo escritorio -->
+        <a-camera position="0 1.6 0" wasd-controls="enabled: false">
             <a-cursor></a-cursor>
         </a-camera>
 
-        <!-- Controladores de Meta Quest (versión actualizada) -->
+        <!-- Controladores para Meta Quest (manos o controles) -->
         <a-entity 
-            hand-controls="hand: left" 
-            super-hands 
-            collision-filter="group: hand; collidesWith: interactivo">
-        </a-entity>
-        
-        <a-entity 
-            hand-controls="hand: right" 
-            super-hands 
-            collision-filter="group: hand; collidesWith: interactivo">
+            id="leftHand"
+            hand-controls="hand: left; modelColor: #ff0000"
+            super-hands="
+                colliderEvent: collide;
+                colliderEventProperty: els;
+                maxGrabDistance: 2;
+                grabStartButtons: grip, trigger;
+                grabEndButtons: grip, trigger"
+            collision-filter="group: hand; collidesWith: interactable">
         </a-entity>
 
-        <!-- Cubo interactivo con física y componente cubito -->
+        <a-entity 
+            id="rightHand"
+            hand-controls="hand: right; modelColor: #00ff00"
+            super-hands="
+                colliderEvent: collide;
+                maxGrabDistance: 2;
+                grabStartButtons: grip, trigger;
+                grabEndButtons: grip, trigger"
+            collision-filter="group: hand; collidesWith: interactable">
+        </a-entity>
+
+        <!-- Cubo interactivo -->
         <a-box 
-            id="cubo" 
-            position="0 1.5 -0.5" 
-            color="red" 
-            scale="0.5 0.5 0.5" 
-            class="interactivo"
+            id="cubo"
+            class="interactable"
+            position="0 1.5 -1" 
+            width="0.5" 
+            height="0.5" 
+            depth="0.5"
+            color="#FF0000"
+            shadow
             dynamic-body
-            grabbable 
-            hoverable 
+            grabbable
+            hoverable
             draggable
-            cubito>
+            stretchable
+            droppable>
         </a-box>
 
-        <!-- Suelo estático -->
+        <!-- Suelo físico -->
         <a-plane 
+            position="0 0 -4" 
             rotation="-90 0 0" 
             width="10" 
             height="10" 
-            color="#ccc" 
-            static-body>
+            color="#DDDDDD"
+            static-body
+            shadow>
         </a-plane>
+
+        <!-- Luz ambiental -->
+        <a-light type="ambient" color="#FFFFFF" intensity="0.5"></a-light>
+        <a-light type="directional" color="#FFFFFF" intensity="0.5" position="-1 2 1"></a-light>
     </a-scene>
 
     <script>
-        AFRAME.registerComponent('cubito', {
+        // Componente para personalizar la interacción
+        AFRAME.registerComponent('cube-interaction', {
             init: function () {
-                const el = this.el;
+                const cube = this.el;
 
-                // Eventos para hover (ratón/raycaster)
-                el.addEventListener('hover-start', () => {
-                    el.setAttribute('color', 'yellow');
-                    console.log('Hover start');
+                // Eventos de hover (mano cerca)
+                cube.addEventListener('hover-start', () => {
+                    cube.setAttribute('color', '#FFFF00'); // Amarillo
+                    console.log('Mano cerca del cubo');
                 });
 
-                el.addEventListener('hover-end', () => {
-                    el.setAttribute('color', 'red');
-                    console.log('Hover end');
+                cube.addEventListener('hover-end', () => {
+                    cube.setAttribute('color', '#FF0000'); // Rojo
                 });
 
-                // Eventos para grab (agarre)
-                el.addEventListener('grab-start', () => {
-                    el.setAttribute('color', 'green');
-                    console.log('Grab start');
+                // Eventos de agarre (grab)
+                cube.addEventListener('grab-start', () => {
+                    cube.setAttribute('color', '#00FF00'); // Verde
+                    console.log('Cubo agarrado');
                 });
 
-                el.addEventListener('grab-end', () => {
-                    el.setAttribute('color', 'blue');
-                    console.log('Grab end');
+                cube.addEventListener('grab-end', () => {
+                    cube.setAttribute('color', '#FF0000'); // Rojo
+                    console.log('Cubo soltado');
                 });
             }
         });
+
+        // Aplicar el componente al cubo
+        document.querySelector('#cubo').setAttribute('cube-interaction', '');
     </script>
 </body>
 </html>
